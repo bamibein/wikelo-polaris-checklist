@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SC Haulers | Wikelo Polaris Checklist</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#101214; --panel:#181b1e; --line:#34383b;
+  --text:#e8e6df; --muted:#92999c; --gold:#dba64d;
+}
+*{box-sizing:border-box}
+body {
+  margin:0;padding:20px;background:#0b0d0e;color:var(--text);
+  font:14px/1.6 Arial,sans-serif;
+}
+.app{max-width:1000px;margin:auto;background:var(--bg);
+  border:1px solid var(--line);padding:clamp(15px,4vw,30px)}
+header{display:flex;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:18px}
+.brand{font-weight:800;letter-spacing:2px;font-size:17px}
+.gold,.eyebrow{color:var(--gold)}
+.muted,.detail,small{color:var(--muted)}
+.eyebrow{font-size:11px;letter-spacing:2px;margin-top:25px}
+h1{font-size:clamp(28px,5vw,43px);line-height:1.15;margin:8px 0}
+h2{font-size:20px;margin:0}
+p{margin:8px 0}
+.panel{background:var(--panel);border:1px solid var(--line);
+  padding:20px;margin:20px 0}
+.progress-head,.section-head{display:flex;justify-content:space-between;
+  align-items:center;gap:12px;flex-wrap:wrap}
+.big{font-size:30px;font-weight:bold;color:var(--gold)}
+.track{height:8px;background:#303437;margin:14px 0}
+.fill{height:100%;background:var(--gold);width:0;transition:width .2s}
+.toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:18px}
+button,input{font:inherit}
+button{cursor:pointer;background:#24282b;color:var(--text);
+  border:1px solid var(--line);padding:9px 13px;border-radius:3px}
+button:hover{border-color:var(--gold)}
+input[type=search],input[type=number]{background:#101214;color:var(--text);
+  border:1px solid var(--line);padding:9px;min-width:0;width:100%}
+input[type=checkbox]{accent-color:var(--gold);width:17px;height:17px}
+.section-head{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:5px}
+.item{display:grid;grid-template-columns:24px minmax(0,1fr) 95px;
+  align-items:center;gap:12px;padding:13px 3px;border-bottom:1px solid #292d30}
+.item.done .item-name{color:var(--muted);text-decoration:line-through}
+.item-name{font-weight:600}
+.detail{font-size:12px}
+.qty-label{display:block;text-align:right;font-size:11px;color:var(--muted);margin-bottom:4px}
+.notice{background:#1d1d1b;border-left:3px solid var(--gold);padding:15px;margin:20px 0}
+footer{border-top:1px solid var(--line);padding-top:18px;margin-top:30px;
+  font-size:12px;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:480px){
+ body{padding:0}.app{border:0;padding:15px}
+ .panel{padding:13px}.item{grid-template-columns:22px minmax(0,1fr) 75px;gap:8px}
+ .item-name{font-size:13px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">SC <span class="gold">HAULERS</span></div>
+  <div class="muted">VIDEOS · TOOLS · WATCH</div>
+</header>
+
+<div class="eyebrow">SC HAULERS / COLLECTION MANIFEST</div>
+<h1>Wikelo Polaris checklist.</h1>
+<p class="muted">One ship. Every item accounted for. Enter your quantities
+or check an item to mark its full quantity collected.</p>
+<p class="gold">BUILD 12878398 · REWARD: 1 WIKELO POLARIS + 1,000 REP</p>
+
+<section class="panel">
+  <div class="progress-head">
+    <div><div class="muted">MANIFEST PROGRESS</div>
+      <div class="big" id="count">0 / 20</div></div>
+    <div class="big" id="percent">0%</div>
+  </div>
+  <div class="track"><div class="fill" id="fill"></div></div>
+  <div class="muted" id="remaining">20 requirements still to finish.</div>
+  <div class="toolbar">
+    <label><input type="checkbox" id="filter"> Show remaining only</label>
+    <input type="search" id="search" placeholder="Search items..." style="max-width:260px">
+    <span class="muted" id="saved">Saved on this device</span>
+  </div>
+</section>
+
+<div id="sections"></div>
+<div class="notice" id="quantanium"></div>
+
+<footer>
+  Progress is saved in this browser on this device.
+  Sharing this file does not share your personal progress.
+  <p class="actions">
+    <button id="export">Export progress</button>
+    <button id="import">Import progress</button>
+    <button id="reset">Reset checklist</button>
+  </p>
+  <input type="file" id="importFile" accept=".json,application/json" hidden>
+  <p>SC HAULERS · COMMUNITY CHECKLIST</p>
+</footer>
+</div>
+
+<script>
+(() => {
+const groups = [
+ {title:"Trade items",subtitle:"Collected / required",items:[
+  ["Wikelo favors",50,""],
+  ["Special Wikelo favors / Polaris bits",15,"24 SCU Quantanium per special favor"],
+  ["Compboard #5 - Ruin Station CZ",10,""],
+  ["Carinite",20,""],
+  ["Irradiated apex Valakkar fang",20,""],
+  ["Mercenary scrip (MG SCRIP)",20,""],
+  ["Ace Interceptor Helmet",15,""],
+  ["Irradiated apex Valakkar pearl",15,"Tier 1 · irradiated_super_01"],
+  ["UEE 6th Platoon Medal (Pristine)",15,""],
+  ["Pure Carinite",15,""],
+  ["ASD Secure Drives",15,""]
+ ]},
+ {title:"ASD samples",subtitle:"9 distinct samples · 1 each",items:[
+  ["ASD sample PWL1",1,"Grav Lab"],
+  ["ASD sample PWL2",1,"Grav Lab"],
+  ["ASD sample PWL3",1,"Grav Lab"],
+  ["ASD sample RGL1",1,"Medical Lab"],
+  ["ASD sample RGL2",1,"Medical Lab"],
+  ["ASD sample RGL3",1,"Medical Lab"],
+  ["ASD sample XTL1",1,"Biomass Processor"],
+  ["ASD sample XTL2",1,"Biomass Processor"],
+  ["ASD sample XTL3",1,"Biomass Processor"]
+ ]}
+];
+const items=groups.flatMap((g,gi)=>g.items.map((x,ii)=>({
+ id:gi+"-"+ii,name:x[0],max:x[1],detail:x[2],group:gi
+})));
+const key="sc-haulers-wikelo-polaris-v1";
+let saved={};
+try{saved=JSON.parse(localStorage.getItem(key)||"{}")||{};}catch(e){}
+const $=id=>document.getElementById(id);
+const qty=i=>Math.max(0,Math.min(i.max,parseInt(saved[i.id],10)||0));
+
+groups.forEach((g,gi)=>{
+ const section=document.createElement("section");
+ section.className="panel";
+ const head=document.createElement("div");
+ head.className="section-head";
+ const h=document.createElement("h2");h.textContent=g.title;
+ const sub=document.createElement("span");sub.className="muted";sub.textContent=g.subtitle;
+ head.append(h,sub);section.append(head);
+
+ g.items.forEach((x,ii)=>{
+  const item=items.find(i=>i.id===gi+"-"+ii);
+  const row=document.createElement("div");row.className="item";row.dataset.id=item.id;
+  const check=document.createElement("input");check.type="checkbox";
+  check.setAttribute("aria-label","Mark "+item.name+" complete");
+  const info=document.createElement("div");
+  const name=document.createElement("div");name.className="item-name";name.textContent=item.name;
+  info.append(name);
+  if(item.detail){const d=document.createElement("div");d.className="detail";
+   d.textContent=item.detail+(gi===1?" · One of each distinct sample required":"");info.append(d);}
+  const ctrl=document.createElement("div");
+  const label=document.createElement("label");label.className="qty-label";
+  label.textContent="Have / "+item.max;
+  const input=document.createElement("input");input.type="number";input.className="qty";
+  input.min=0;input.max=item.max;input.step=1;input.inputMode="numeric";
+  input.setAttribute("aria-label",item.name+" collected");
+  ctrl.append(label,input);row.append(check,info,ctrl);section.append(row);
+
+  function update(){
+   const n=qty(item);input.value=n;check.checked=n>=item.max;
+   row.classList.toggle("done",check.checked);
+   row.hidden=($("filter").checked&&n>=item.max)||
+    !item.name.toLowerCase().includes($("search").value.toLowerCase());
+  }
+  input.addEventListener("change",()=>{
+   saved[item.id]=Math.max(0,Math.min(item.max,parseInt(input.value,10)||0));
+   persist();refresh();
+  });
+  check.addEventListener("change",()=>{
+   saved[item.id]=check.checked?item.max:0;persist();refresh();
+  });
+  item.update=update;update();
+  });
+ $("sections").append(section);
+});
+
+function persist(){
+ try{localStorage.setItem(key,JSON.stringify(saved));$("saved").textContent="Saved on this device";}
+ catch(e){$("saved").textContent="Browser storage unavailable";}
+}
+function refresh(){
+ const complete=items.filter(i=>qty(i)>=i.max).length;
+ const total=items.length,pct=Math.round(complete/total*100);
+ $("count").textContent=complete+" / "+total+" complete";
+ $("percent").textContent=pct+"%";$("fill").style.width=pct+"%";
+ $("remaining").textContent=(total-complete)+" requirements still to finish.";
+ const special=items.find(i=>i.id==="0-1");
+ const left=special.max-qty(special);
+ $("quantanium").hidden=left===0;
+ $("quantanium").textContent=left===0
+  ?"All special favors accounted for!"
+  :left*24+" SCU Quantanium needed for "+left+" remaining special favors. Update the count after exchanging.";
+ items.forEach(i=>i.update());
+}
+$("filter").addEventListener("change",refresh);
+$("search").addEventListener("input",refresh);
+$("reset").addEventListener("click",()=>{
+ if(confirm("Reset all checklist progress?")){saved={};persist();refresh();}
+});
+$("export").addEventListener("click",()=>{
+ const blob=new Blob([JSON.stringify(saved,null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download="wikelo-polaris-progress.json";a.click();URL.revokeObjectURL(a.href);
+});
+$("import").addEventListener("click",()=>$("importFile").click());
+$("importFile").addEventListener("change",async e=>{
+ const file=e.target.files[0];if(!file)return;
+ try{
+  const data=JSON.parse(await file.text());
+  if(!data||typeof data!=="object"||Array.isArray(data))throw Error();
+  saved={};
+  items.forEach(i=>{saved[i.id]=Math.max(0,Math.min(i.max,parseInt(data[i.id],10)||0));});
+  persist();refresh();alert("Progress imported successfully.");
+ }catch(err){alert("Invalid progress file.");}
+ e.target.value="";
+});
+refresh();
+})();
+</script>
+</body>
+</html>
